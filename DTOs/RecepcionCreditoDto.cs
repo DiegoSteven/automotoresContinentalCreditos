@@ -16,8 +16,11 @@ namespace RespuestaCredito.DTOs
         public decimal? Tasa { get; set; }
         public string? Observacion { get; set; }
 
-        // Manejar la lista de documentos
+        // Para el estado REQUIERE_DOCUMENTOS
         public List<string>? ListaDocumentos { get; set; }
+
+        // Para el estado CONDICIONADO
+        public List<string>? Condiciones { get; set; }
 
         public DateTime FechaRespuesta { get; set; }
     }

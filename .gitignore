@@ -12,3 +12,10 @@ obj/
 
 # Logs
 *.log
+
+# Migrations
+Migrations/
+
+# Database
+*.mdf
+*.ldf

@@ -22,6 +22,67 @@ namespace RespuestaCredito.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("RespuestaCredito.Models.Asesor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Asesores");
+                });
+
+            modelBuilder.Entity("RespuestaCredito.Models.Financiera", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activa")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Codigo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TiempoEsperaMinutos")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Financieras");
+                });
+
             modelBuilder.Entity("RespuestaCredito.Models.NotificacionAsesor", b =>
                 {
                     b.Property<int>("Id")
@@ -59,6 +120,9 @@ namespace RespuestaCredito.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CondicionesJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Estado")
                         .IsRequired()
@@ -104,9 +168,13 @@ namespace RespuestaCredito.Migrations
                     b.Property<int>("IdAsesor")
                         .HasColumnType("int");
 
+                    b.Property<int>("IdFinanciera")
+                        .HasColumnType("int");
+
                     b.Property<string>("NombreCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("NumeroSolicitud")
                         .IsRequired()
@@ -115,10 +183,46 @@ namespace RespuestaCredito.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdAsesor");
+
+                    b.HasIndex("IdFinanciera");
+
                     b.HasIndex("NumeroSolicitud")
                         .IsUnique();
 
                     b.ToTable("Solicitudes");
+                });
+
+            modelBuilder.Entity("RespuestaCredito.Models.Usuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("RespuestaCredito.Models.RespuestaCreditoFinanciera", b =>
@@ -130,6 +234,35 @@ namespace RespuestaCredito.Migrations
                         .IsRequired();
 
                     b.Navigation("Solicitud");
+                });
+
+            modelBuilder.Entity("RespuestaCredito.Models.SolicitudCredito", b =>
+                {
+                    b.HasOne("RespuestaCredito.Models.Asesor", "Asesor")
+                        .WithMany("Solicitudes")
+                        .HasForeignKey("IdAsesor")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RespuestaCredito.Models.Financiera", "Financiera")
+                        .WithMany("Solicitudes")
+                        .HasForeignKey("IdFinanciera")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asesor");
+
+                    b.Navigation("Financiera");
+                });
+
+            modelBuilder.Entity("RespuestaCredito.Models.Asesor", b =>
+                {
+                    b.Navigation("Solicitudes");
+                });
+
+            modelBuilder.Entity("RespuestaCredito.Models.Financiera", b =>
+                {
+                    b.Navigation("Solicitudes");
                 });
 
             modelBuilder.Entity("RespuestaCredito.Models.SolicitudCredito", b =>

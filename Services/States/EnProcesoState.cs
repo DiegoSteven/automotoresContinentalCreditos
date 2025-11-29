@@ -6,16 +6,21 @@ namespace RespuestaCredito.Services.States
 {
     public class EnProcesoState : IEstadoCreditoStrategy
     {
+        private readonly int _tiempoEsperaMinutos;
+
+        public EnProcesoState(int tiempoEsperaMinutos)
+        {
+            _tiempoEsperaMinutos = tiempoEsperaMinutos;
+        }
+
         public void Validar(RecepcionCreditoDto dto)
         {
-            // No hay validación estricta, la financiera solo nos dice "espere"
         }
 
         public void Procesar(RespuestaCreditoFinanciera entidad, RecepcionCreditoDto dto)
         {
-            // Simulamos leer un parámetro de configuración (ej: 30 minutos)
-            int tiempoEsperaMinutos = 30;
-            entidad.Observaciones = $"EN ANÁLISIS: Consultar nuevamente en {tiempoEsperaMinutos} minutos.";
+            // Usar el parámetro de la financiera
+            entidad.Observaciones = $"EN ANÁLISIS: Consultar nuevamente en {_tiempoEsperaMinutos} minutos.";
         }
     }
 }

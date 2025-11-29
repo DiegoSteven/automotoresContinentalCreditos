@@ -23,7 +23,13 @@ namespace RespuestaCredito.Models
 
         public DateTime FechaRespuesta { get; set; }
         public string? Observaciones { get; set; }
+
+        // Para almacenar condiciones del estado CONDICIONADO
+        public string? CondicionesJson { get; set; }
+
+        // Request completo para auditoría
         public string? JsonCompleto { get; set; }
+
         public DateTime FechaProceso { get; set; } = DateTime.Now;
     }
 }
