@@ -70,6 +70,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddSingleton<CreditoStateFactory>();
 builder.Services.AddScoped<ICreditoService, CreditoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

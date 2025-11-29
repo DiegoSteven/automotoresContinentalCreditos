@@ -22,6 +22,25 @@ Actualizar la cadena de conexión en `appsettings.json`:
 }
 ```
 
+Configurar también el email en `appsettings.json`:
+
+```json
+"Email": {
+  "SmtpHost": "smtp.gmail.com",
+  "SmtpPort": "587",
+  "SmtpUser": "tu-email@gmail.com",
+  "SmtpPassword": "tu-app-password",
+  "FromEmail": "tu-email@gmail.com",
+  "FromName": "Automotores Continental"
+}
+```
+
+**Nota:** Para Gmail, debes generar una "Contraseña de aplicación":
+1. Ve a tu cuenta de Google → Seguridad
+2. Activa la verificación en 2 pasos
+3. En "Contraseñas de aplicaciones", genera una nueva
+4. Usa esa contraseña en `SmtpPassword`
+
 ### 2. Crear Base de Datos
 
 Crear la base de datos manualmente en SQL Server:

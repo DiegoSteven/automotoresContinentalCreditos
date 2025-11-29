@@ -12,15 +12,18 @@ namespace RespuestaCredito.Services
         private readonly AppDbContext _context;
         private readonly CreditoStateFactory _stateFactory;
         private readonly ILogger<CreditoService> _logger;
+        private readonly IEmailService _emailService;
 
         public CreditoService(
             AppDbContext context, 
             CreditoStateFactory stateFactory, 
-            ILogger<CreditoService> logger)
+            ILogger<CreditoService> logger,
+            IEmailService emailService)
         {
             _context = context;
             _stateFactory = stateFactory;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task ProcesarRespuestaAsync(RecepcionCreditoDto dto)
@@ -55,11 +58,13 @@ namespace RespuestaCredito.Services
 
                 strategy.Procesar(nuevaRespuesta, dto);
 
+                var mensaje = $"La financiera {solicitud.Financiera?.Nombre ?? "externa"} respondió {dto.Estado} para la solicitud {dto.NumeroSolicitud}.";
+                
                 var notificacion = new NotificacionAsesor
                 {
                     IdAsesor = solicitud.IdAsesor,
                     IdSolicitud = solicitud.Id,
-                    Mensaje = $"La financiera {solicitud.Financiera?.Nombre ?? "externa"} respondió {dto.Estado} para la solicitud {dto.NumeroSolicitud}.",
+                    Mensaje = mensaje,
                     Leido = false,
                     FechaNotificacion = DateTime.Now
                 };
@@ -67,6 +72,12 @@ namespace RespuestaCredito.Services
                 _context.RespuestasFinanciera.Add(nuevaRespuesta);
                 _context.Notificaciones.Add(notificacion);
                 await _context.SaveChangesAsync();
+
+                await _emailService.EnviarNotificacionAsync(
+                    solicitud.Asesor!.Email,
+                    $"Respuesta de Crédito - {dto.NumeroSolicitud}",
+                    mensaje
+                );
 
                 _logger.LogInformation("Respuesta procesada exitosamente para solicitud {NumeroSolicitud}. Asesor {IdAsesor} notificado.", 
                     dto.NumeroSolicitud, solicitud.IdAsesor);
