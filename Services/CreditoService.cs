@@ -44,6 +44,23 @@ namespace RespuestaCredito.Services
                     throw new KeyNotFoundException($"La solicitud {dto.NumeroSolicitud} no existe en el sistema.");
                 }
 
+                // Obtener el último estado de la solicitud
+                var ultimaRespuesta = await _context.RespuestasFinanciera
+                    .Where(r => r.IdSolicitud == solicitud.Id)
+                    .OrderByDescending(r => r.FechaRespuesta)
+                    .FirstOrDefaultAsync();
+
+                var estadoActual = ultimaRespuesta?.Estado;
+
+                // Validar transición de estado
+                if (!EstadoCreditoValidator.EsTransicionValida(estadoActual, dto.Estado))
+                {
+                    var mensajeError = EstadoCreditoValidator.ObtenerMensajeError(estadoActual, dto.Estado);
+                    _logger.LogWarning("Transición de estado inválida para solicitud {NumeroSolicitud}: {Mensaje}", 
+                        dto.NumeroSolicitud, mensajeError);
+                    throw new ArgumentException(mensajeError);
+                }
+
                 var strategy = _stateFactory.GetStrategy(dto.Estado, solicitud.Financiera?.TiempoEsperaMinutos ?? 30);
                 strategy.Validar(dto);
 

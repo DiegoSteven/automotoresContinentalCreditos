@@ -78,12 +78,12 @@ VALUES
     ('Juan Pérez', 'juan.perez@automotores.com', '0991234567', 1),
     ('María González', 'maria.gonzalez@automotores.com', '0997654321', 1);
 
--- Solicitudes
-INSERT INTO Solicitudes (NumeroSolicitud, NombreCliente, IdAsesor, IdFinanciera)
+-- Solicitudes de Crédito Automotriz
+INSERT INTO Solicitudes (NumeroSolicitud, NombreCliente, IdAsesor, IdFinanciera, MarcaVehiculo, ModeloVehiculo, AnioVehiculo, PrecioVehiculo, TipoVehiculo)
 VALUES 
-    ('SOL-2025-001245', 'Roberto Martínez', 1, 1),
-    ('SOL-2025-001246', 'Ana López', 2, 2),
-    ('SOL-2025-001247', 'Pedro Sánchez', 1, 3);
+    ('SOL-2025-001245', 'Roberto Martínez', 1, 1, 'Toyota', 'Corolla XEI 1.8', 2024, 28500.00, 'Nuevo'),
+    ('SOL-2025-001246', 'Ana López', 2, 2, 'Mazda', 'CX-5 Grand Touring', 2023, 35200.00, 'Nuevo'),
+    ('SOL-2025-001247', 'Pedro Sánchez', 1, 3, 'Chevrolet', 'Tracker Premier', 2022, 24800.00, 'Usado');
 ```
 
 ## Ejecución
@@ -145,12 +145,14 @@ Content-Type: application/json
 {
   "numeroSolicitud": "SOL-2025-001245",
   "estado": "APROBADO",
-  "montoAprobado": 14500,
-  "tasa": 15.6,
-  "observacion": "Cliente califica sin restricciones",
+  "montoAprobado": 24500,
+  "tasa": 9.8,
+  "observacion": "Crédito aprobado para Toyota Corolla XEI 2024. Cliente con buen historial crediticio.",
   "fechaRespuesta": "2025-11-28T10:25:00"
 }
 ```
+
+**Nota:** Para créditos automotrices aprobados, el sistema calculará automáticamente el plazo y cuota mensual según las políticas de la financiera.
 
 #### Estado: CONDICIONADO
 
@@ -158,14 +160,14 @@ Content-Type: application/json
 {
   "numeroSolicitud": "SOL-2025-001246",
   "estado": "CONDICIONADO",
-  "montoAprobado": 12000,
-  "tasa": 16.5,
+  "montoAprobado": 30000,
+  "tasa": 11.5,
   "condiciones": [
-    "Presentar garante con ingresos mínimos de $800",
-    "Incrementar entrada al 30%",
-    "Seguro de desgravamen obligatorio"
+    "Incrementar entrada al 25% del valor del vehículo (Mazda CX-5)",
+    "Presentar garante con ingresos demostrables mínimos de $1,200",
+    "Contratar seguro todo riesgo con cobertura contra robo e incendio"
   ],
-  "observacion": "Aprobación sujeta a condiciones",
+  "observacion": "Aprobación condicionada para Mazda CX-5 Grand Touring 2023",
   "fechaRespuesta": "2025-11-28T11:00:00"
 }
 ```
@@ -177,11 +179,12 @@ Content-Type: application/json
   "numeroSolicitud": "SOL-2025-001247",
   "estado": "REQUIERE_DOCUMENTOS",
   "listaDocumentos": [
-    "Cédula de identidad actualizada",
-    "Planilla de luz (últimos 3 meses)",
-    "Certificado de ingresos"
+    "Matrícula del vehículo Chevrolet Tracker 2022",
+    "Certificado de avalúo del vehículo usado",
+    "Certificado de ingresos actualizado (no mayor a 30 días)",
+    "Comprobante de domicilio reciente"
   ],
-  "observacion": "Documentación incompleta",
+  "observacion": "Documentación incompleta para crédito de vehículo usado",
   "fechaRespuesta": "2025-11-28T12:00:00"
 }
 ```
@@ -190,9 +193,9 @@ Content-Type: application/json
 
 ```json
 {
-  "numeroSolicitud": "SOL-2025-001247",
+  "numeroSolicitud": "SOL-2025-001248",
   "estado": "NEGADO",
-  "observacion": "Cliente presenta historial crediticio negativo",
+  "observacion": "Cliente presenta morosidad en créditos automotrices anteriores. Relación cuota-ingreso supera el 45% permitido.",
   "fechaRespuesta": "2025-11-28T14:00:00"
 }
 ```
@@ -201,9 +204,9 @@ Content-Type: application/json
 
 ```json
 {
-  "numeroSolicitud": "SOL-2025-001247",
+  "numeroSolicitud": "SOL-2025-001249",
   "estado": "EN_PROCESO",
-  "observacion": "Solicitud en análisis de comité",
+  "observacion": "Solicitud en evaluación por comité de crédito. Verificando historial de pagos del cliente y tasación del vehículo.",
   "fechaRespuesta": "2025-11-28T13:00:00"
 }
 ```
@@ -226,11 +229,33 @@ GET /api/creditos/respuesta/SOL-2025-001245
 
 ## Validaciones
 
+### Validaciones de Campos por Estado
+
 - **APROBADO**: Requiere `montoAprobado` y `tasa`
 - **CONDICIONADO**: Requiere `condiciones` (lista) y `montoAprobado`
 - **NEGADO**: Requiere `observacion`
 - **REQUIERE_DOCUMENTOS**: Requiere `listaDocumentos` (lista)
 - **EN_PROCESO**: Sin validaciones estrictas
+
+### Flujo de Estados (Control de Transiciones)
+
+El sistema valida que los cambios de estado sigan un flujo lógico:
+
+**Reglas principales:**
+- `APROBADO` y `NEGADO` son estados **finales** (no permiten más cambios)
+-  No se puede aprobar un crédito previamente negado
+-  No se puede pasar de `REQUIERE_DOCUMENTOS` directo a `APROBADO` (debe reevaluarse)
+- `CONDICIONADO` solo puede ir a `APROBADO` o `NEGADO`
+
+**Ejemplo de flujo válido:**
+```
+EN_PROCESO → REQUIERE_DOCUMENTOS → EN_PROCESO → APROBADO ✓
+```
+
+**Ejemplo de flujo inválido:**
+```
+NEGADO → APROBADO ✗  (Error: crédito negado no puede aprobarse)
+```
 
 ## Códigos de Respuesta HTTP
 

@@ -21,6 +21,11 @@ namespace RespuestaCredito.Models
         [Column(TypeName = "decimal(5,2)")]
         public decimal? TasaInteres { get; set; }
 
+        public int? PlazoMeses { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? CuotaMensual { get; set; }
+
         public DateTime FechaRespuesta { get; set; }
         public string? Observaciones { get; set; }
 

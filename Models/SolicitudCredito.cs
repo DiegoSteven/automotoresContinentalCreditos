@@ -14,6 +14,21 @@ namespace RespuestaCredito.Models
         [Required, MaxLength(200)]
         public string NombreCliente { get; set; } = string.Empty;
 
+        // Datos del Vehículo
+        [MaxLength(50)]
+        public string? MarcaVehiculo { get; set; }
+
+        [MaxLength(100)]
+        public string? ModeloVehiculo { get; set; }
+
+        public int? AnioVehiculo { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? PrecioVehiculo { get; set; }
+
+        [MaxLength(20)]
+        public string? TipoVehiculo { get; set; } // Nuevo o Usado
+
         // Foreign Keys
         public int IdAsesor { get; set; }
         public int IdFinanciera { get; set; }

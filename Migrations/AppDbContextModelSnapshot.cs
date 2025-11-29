@@ -124,6 +124,9 @@ namespace RespuestaCredito.Migrations
                     b.Property<string>("CondicionesJson")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal?>("CuotaMensual")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -147,6 +150,9 @@ namespace RespuestaCredito.Migrations
                     b.Property<string>("Observaciones")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("PlazoMeses")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("TasaInteres")
                         .HasColumnType("decimal(5,2)");
 
@@ -165,11 +171,22 @@ namespace RespuestaCredito.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AnioVehiculo")
+                        .HasColumnType("int");
+
                     b.Property<int>("IdAsesor")
                         .HasColumnType("int");
 
                     b.Property<int>("IdFinanciera")
                         .HasColumnType("int");
+
+                    b.Property<string>("MarcaVehiculo")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ModeloVehiculo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("NombreCliente")
                         .IsRequired()
@@ -178,6 +195,13 @@ namespace RespuestaCredito.Migrations
 
                     b.Property<string>("NumeroSolicitud")
                         .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("PrecioVehiculo")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TipoVehiculo")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
